@@ -1,0 +1,6 @@
+[package]
+name = "neovim-rsrc"
+version = "0.1.0"
+authors = ["Mattijs Korpershoek <mattijs.korpershoek@gmail.com>"]
+
+[dependencies]
