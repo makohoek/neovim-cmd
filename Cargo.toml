@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Mattijs Korpershoek <mattijs.korpershoek@gmail.com>"]
 
 [dependencies]
+neovim-lib = "0.5.3"
