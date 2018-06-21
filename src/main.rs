@@ -18,6 +18,11 @@ fn main() {
 
     println!("file to open {}", filename);
 
+    // build the command to send to neovim
+    let mut command = String::from("tabedit");
+    command = command + " ";
+    command = command + filename;
+
     // first, check if we are within neovim's terminal (if neovim is running)
     let address = match env::vars().find(|&(ref key, ref _value)| key == "NVIM_LISTEN_ADDRESS") {
         // option.0 is the key (env variable name) option.1 is the value (env variable value)
@@ -38,7 +43,7 @@ fn main() {
     let mut nvim = Neovim::new(session);
 
     // send some commands
-    nvim.command("vsplit").unwrap();
+    nvim.command(&command).unwrap();
 }
 
 // nnoremap <buffer> <leader>pc :Dispatch cargo build<CR>
