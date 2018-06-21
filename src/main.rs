@@ -1,25 +1,20 @@
+extern crate clap;
 extern crate neovim_lib;
 
+use clap::App;
 use neovim_lib::{Neovim, NeovimApi, Session};
 use std::env;
 
-// TODO: replace by clap crate
-// https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
-fn usage() {
-    println!("usage: neovim_rsrc FILE");
-}
-
 fn main() {
-    // collect argc, argv[]
-    let args: Vec<String> = env::args().collect();
+    // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
+    let matches = App::new("Neovim Remote Control")
+        .version("0.0.1")
+        .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
+        .about("Control neovim from the :terminal")
+        .arg_from_usage("<file> 'File to edit'")
+        .get_matches();
 
-    let filename = match args.len() {
-        2 => &args[1],
-        _ => {
-            usage();
-            return;
-        }
-    };
+    let filename = matches.value_of("file").unwrap();
 
     println!("file to open {}", filename);
 
