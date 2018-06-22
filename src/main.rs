@@ -5,7 +5,16 @@ use clap::App;
 use neovim_lib::{Neovim, NeovimApi, Session, Handler, Value};
 use std::env;
 use std::{thread, time};
+use std::sync::mpsc;
 
+pub enum Event {
+    BufferDelete,
+}
+
+pub struct NeovimHandler(pub mpsc::Sender<Event>);
+
+impl NeovimHandler {
+}
 
 impl Handler for NeovimHandler{
     fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
@@ -14,7 +23,7 @@ impl Handler for NeovimHandler{
     }
 
     fn handle_request( &mut self, _name: &str, _args: Vec<Value>) -> Result<Value, Value> {
-        Err(Value::from("not implemented"));
+        Err(Value::from("not implemented"))
     }
 }
 
@@ -50,7 +59,9 @@ fn main() {
     println!("listening address {}", address);
 
     let mut session = Session::new_unix_socket(address).unwrap();
-    session.start_event_loop();
+
+    let (sender, receiver) = mpsc::channel();
+    session.start_event_loop_handler(NeovimHandler(sender));
 
     // create the nvim instance
     let mut nvim = Neovim::new(session);
@@ -68,9 +79,14 @@ fn main() {
         return;
     }
 
+    // this is the receiver loop
     loop {
         // read the communication channel for updates
-        //
+        match receiver.recv() {
+            _ => {
+                println!("received stuff!");
+            }
+        }
         thread::sleep(time::Duration::from_millis(2000));
     }
 
