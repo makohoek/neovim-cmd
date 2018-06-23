@@ -53,9 +53,9 @@ fn main() {
     println!("file to open {}", filename);
 
     // build the command to send to neovim
-    let mut command = String::from("edit");
-    command = command + " ";
-    command = command + filename;
+    let command = String::from("edit");
+    let command = command + " ";
+    let command = command + filename;
 
     // first, check if we are within neovim's terminal (if neovim is running)
     let address = match env::vars().find(|&(ref key, ref _value)| key == "NVIM_LISTEN_ADDRESS") {
