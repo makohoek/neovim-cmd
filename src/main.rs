@@ -14,12 +14,24 @@ pub enum Event {
 pub struct NeovimHandler(pub mpsc::Sender<Event>);
 
 impl NeovimHandler {
+    fn parse_buf_detach_event(&mut self, _args: &Vec<Value>) -> Result<Event, String> {
+        Ok(Event::BufferDelete)
+    }
 }
 
 impl Handler for NeovimHandler{
     fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
         println!("event: {}", _name);
-
+        match _name {
+            "nvim_buf_detach_event" => {
+                if let Ok(event) = self.parse_buf_detach_event(&_args) {
+                    println!("got detach event!");
+                    self.0.send(event);
+                }
+            },
+            "nvim_buf_changedtick_event" => {},
+            _ => {}
+        }
     }
 
     fn handle_request( &mut self, _name: &str, _args: Vec<Value>) -> Result<Value, Value> {
@@ -83,11 +95,14 @@ fn main() {
     loop {
         // read the communication channel for updates
         match receiver.recv() {
+            Ok(Event::BufferDelete) => {
+                // buffer is deleted, so let's die!
+                break;
+            }
             _ => {
                 println!("received stuff!");
             }
         }
-        thread::sleep(time::Duration::from_millis(2000));
     }
 
     // now wait on the buffer to be deleted
