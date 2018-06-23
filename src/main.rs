@@ -4,28 +4,28 @@ extern crate neovim_lib;
 use clap::App;
 use neovim_lib::{Neovim, NeovimApi, Session, Handler, Value};
 use std::env;
-use std::{thread, time};
 use std::sync::mpsc;
 
-pub enum Event {
-    BufferDelete,
+pub enum BufferEvent {
+    Delete,
 }
 
-pub struct NeovimHandler(pub mpsc::Sender<Event>);
+pub struct BufferEventHandler(pub mpsc::Sender<BufferEvent>);
 
-impl NeovimHandler {
-    fn parse_buf_detach_event(&mut self, _args: &Vec<Value>) -> Result<Event, String> {
-        Ok(Event::BufferDelete)
+impl BufferEventHandler {
+    fn parse_buf_detach_event(&mut self, _args: &Vec<Value>) -> Result<BufferEvent, String> {
+        Ok(BufferEvent::Delete)
     }
 }
 
-impl Handler for NeovimHandler{
+impl Handler for BufferEventHandler{
     fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
         println!("event: {}", _name);
         match _name {
             "nvim_buf_detach_event" => {
                 if let Ok(event) = self.parse_buf_detach_event(&_args) {
                     println!("got detach event!");
+                    // TODO: handle error cases
                     self.0.send(event);
                 }
             },
@@ -73,7 +73,7 @@ fn main() {
     let mut session = Session::new_unix_socket(address).unwrap();
 
     let (sender, receiver) = mpsc::channel();
-    session.start_event_loop_handler(NeovimHandler(sender));
+    session.start_event_loop_handler(BufferEventHandler(sender));
 
     // create the nvim instance
     let mut nvim = Neovim::new(session);
@@ -84,6 +84,7 @@ fn main() {
     let curbuf = nvim.get_current_buf().unwrap();
     println!("buffer name: {}", curbuf.get_name(&mut nvim).unwrap());
 
+    // we are now subscrided to events related to this buffer
     let attach_ok = curbuf.attach(&mut nvim, false, [].to_vec()).unwrap();
 
     if ! attach_ok {
@@ -95,7 +96,7 @@ fn main() {
     loop {
         // read the communication channel for updates
         match receiver.recv() {
-            Ok(Event::BufferDelete) => {
+            Ok(BufferEvent::Delete) => {
                 // buffer is deleted, so let's die!
                 break;
             }
@@ -105,28 +106,6 @@ fn main() {
         }
     }
 
-    // now wait on the buffer to be deleted
-    // NAIVE implementation:
-    // wait while there is still a COMMIT_EDITMSG buffer
-    // let mut buf_deleted = false;
-    // while ! buf_deleted {
-    //     let mut buf_found = false;
-    //     let buffers = nvim.list_bufs().unwrap();
-    //     for buf in buffers {
-    //         let bufname = buf.get_name(&mut nvim).unwrap();
-    //         println!("name={}", bufname);
-    //         if bufname.find("setup.sh") != None {
-    //             buf_found = true;
-    //         }
-    //     }
-    //     if buf_found == false {
-    //         buf_deleted = true;
-    //     }
-    //     let output = nvim.command_output("ls").unwrap();
-    //     println!("output {}", output);
-
-    //     thread::sleep(time::Duration::from_millis(2000));
-    // }
 }
 
 // nnoremap <buffer> <leader>pc :Dispatch cargo build<CR>
