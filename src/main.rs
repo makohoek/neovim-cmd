@@ -2,7 +2,7 @@ extern crate clap;
 extern crate neovim_lib;
 
 use clap::App;
-use neovim_lib::{Neovim, NeovimApi, Session, Handler, Value};
+use neovim_lib::{Handler, Neovim, NeovimApi, Session, Value};
 use std::env;
 use std::sync::mpsc;
 
@@ -18,7 +18,7 @@ impl BufferEventHandler {
     }
 }
 
-impl Handler for BufferEventHandler{
+impl Handler for BufferEventHandler {
     fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
         println!("event: {}", _name);
         match _name {
@@ -28,13 +28,13 @@ impl Handler for BufferEventHandler{
                     // TODO: handle error cases
                     self.0.send(event);
                 }
-            },
-            "nvim_buf_changedtick_event" => {},
+            }
+            "nvim_buf_changedtick_event" => {}
             _ => {}
         }
     }
 
-    fn handle_request( &mut self, _name: &str, _args: Vec<Value>) -> Result<Value, Value> {
+    fn handle_request(&mut self, _name: &str, _args: Vec<Value>) -> Result<Value, Value> {
         Err(Value::from("not implemented"))
     }
 }
@@ -87,7 +87,7 @@ fn main() {
     // we are now subscrided to events related to this buffer
     let attach_ok = curbuf.attach(&mut nvim, false, [].to_vec()).unwrap();
 
-    if ! attach_ok {
+    if !attach_ok {
         eprintln!("could not attach to buffer");
         return;
     }
@@ -105,7 +105,6 @@ fn main() {
             }
         }
     }
-
 }
 
 // nnoremap <buffer> <leader>pc :Dispatch cargo build<CR>
