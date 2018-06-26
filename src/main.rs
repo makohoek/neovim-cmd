@@ -22,14 +22,15 @@ impl BufferEventHandler {
 }
 
 impl Handler for BufferEventHandler {
-    fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
-        debug!("event: {}", _name);
-        match _name {
+    fn handle_notify(&mut self, name: &str, args: Vec<Value>) {
+        debug!("event: {}", name);
+        match name {
             "nvim_buf_detach_event" => {
-                if let Ok(event) = self.parse_buf_detach_event(&_args) {
+                if let Ok(event) = self.parse_buf_detach_event(&args) {
                     debug!("got detach event!");
-                    // TODO: handle error cases
-                    self.0.send(event);
+                    if let Err(_e) = self.0.send(event) {
+                        error!("Error sending buf_detach_event");
+                    }
                 }
             }
             "nvim_buf_changedtick_event" => {}
