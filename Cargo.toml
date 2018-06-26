@@ -6,3 +6,5 @@ authors = ["Mattijs Korpershoek <mattijs.korpershoek@gmail.com>"]
 [dependencies]
 neovim-lib = "0.5.3"
 clap = "2.31.2"
+log = "0.4.2"
+env_logger = "0.5.10"

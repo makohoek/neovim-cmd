@@ -1,4 +1,6 @@
 extern crate clap;
+#[macro_use] extern crate log;
+extern crate env_logger;
 extern crate neovim_lib;
 
 use clap::{App, SubCommand};
@@ -20,11 +22,11 @@ impl BufferEventHandler {
 
 impl Handler for BufferEventHandler {
     fn handle_notify(&mut self, _name: &str, _args: Vec<Value>) {
-        println!("event: {}", _name);
+        debug!("event: {}", _name);
         match _name {
             "nvim_buf_detach_event" => {
                 if let Ok(event) = self.parse_buf_detach_event(&_args) {
-                    println!("got detach event!");
+                    debug!("got detach event!");
                     // TODO: handle error cases
                     self.0.send(event);
                 }
@@ -84,7 +86,7 @@ fn edit_wait(mut session: Session, filename: String) {
     nvim.command(&command).unwrap();
 
     let curbuf = nvim.get_current_buf().unwrap();
-    println!("buffer name: {}", curbuf.get_name(&mut nvim).unwrap());
+    debug!("buffer name: {}", curbuf.get_name(&mut nvim).unwrap());
 
     // we are now subscrided to events related to this buffer
     curbuf.attach(&mut nvim, false, [].to_vec()).unwrap();
@@ -105,6 +107,8 @@ fn edit_wait(mut session: Session, filename: String) {
 }
 
 fn main() {
+    env_logger::init();
+
     // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
     let matches = App::new("neovim-cmd")
         .version("0.1.0")
@@ -125,13 +129,13 @@ fn main() {
         // option.0 is the key (env variable name) option.1 is the value (env variable value)
         Some(option) => option.1,
         None => {
-            eprintln!("This only works from within a neovim terminal");
+            error!("This only works from within a neovim terminal");
             return;
         }
     };
 
     // create a session and start it
-    println!("listening address {}", address);
+    debug!("listening address {}", address);
 
     let session = Session::new_unix_socket(address).unwrap();
 
