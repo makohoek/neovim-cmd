@@ -19,7 +19,8 @@ FLAGS:
 SUBCOMMANDS:
     cd
     edit
-    help    Prints this message or the help of the given subcommand(s)
+    help      Prints this message or the help of the given subcommand(s)
+    rename
 ```
 
 

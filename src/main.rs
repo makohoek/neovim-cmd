@@ -59,6 +59,10 @@ fn main() {
         .subcommand(
             SubCommand::with_name("cd").arg_from_usage("[directory] 'Directory to :tchdir'"),
         )
+        .subcommand(
+            SubCommand::with_name("rename")
+                .arg_from_usage("<name> 'Rename current :terminal to <name>'"),
+        )
         .get_matches();
 
     // first, check if we are within neovim's terminal (if neovim is running)
@@ -93,12 +97,31 @@ fn main() {
         tchdir(session, directory.to_string());
         return;
     }
+    if let Some(matches) = matches.subcommand_matches("rename") {
+        let bufname = matches.value_of("name").unwrap();
+        term_rename(session, bufname.to_string());
+        return;
+    }
 }
 
 fn tchdir(mut session: Session, directory: String) {
     let command = String::from("tchdir");
     let command = command + " ";
     let command = command + &directory;
+
+    session.start_event_loop();
+
+    // create the nvim instance
+    let mut nvim = Neovim::new(session);
+
+    // send some commands
+    nvim.command(&command).unwrap();
+}
+
+fn term_rename(mut session: Session, name: String) {
+    let command = String::from("file");
+    let command = command + " term://";
+    let command = command + &name;
 
     session.start_event_loop();
 
