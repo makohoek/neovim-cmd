@@ -1,5 +1,6 @@
 extern crate clap;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate env_logger;
 extern crate neovim_lib;
 
@@ -38,6 +39,58 @@ impl Handler for BufferEventHandler {
 
     fn handle_request(&mut self, _name: &str, _args: Vec<Value>) -> Result<Value, Value> {
         Err(Value::from("not implemented"))
+    }
+}
+
+fn main() {
+    env_logger::init();
+
+    // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
+    let matches = App::new("neovim-cmd")
+        .version("0.1.0")
+        .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
+        .about("Send commands to neovim from the :terminal")
+        .subcommand(
+            SubCommand::with_name("edit")
+                .arg_from_usage("<file> 'File to edit'")
+                .arg_from_usage("--wait 'Wait for buffer to be deleted'"),
+        )
+        .subcommand(
+            SubCommand::with_name("cd").arg_from_usage("[directory] 'Directory to :tchdir'"),
+        )
+        .get_matches();
+
+    // first, check if we are within neovim's terminal (if neovim is running)
+    let address = match env::vars().find(|&(ref key, ref _value)| key == "NVIM_LISTEN_ADDRESS") {
+        // option.0 is the key (env variable name) option.1 is the value (env variable value)
+        Some(option) => option.1,
+        None => {
+            error!("This only works from within a neovim terminal");
+            return;
+        }
+    };
+
+    // create a session and start it
+    debug!("listening address {}", address);
+
+    let session = Session::new_unix_socket(address).unwrap();
+
+    if let Some(matches) = matches.subcommand_matches("edit") {
+        let filename = matches.value_of("file").unwrap();
+        if matches.is_present("wait") {
+            edit_wait(session, filename.to_string());
+        } else {
+            edit(session, filename.to_string());
+        }
+        return;
+    }
+    if let Some(matches) = matches.subcommand_matches("cd") {
+        let directory = match matches.value_of("directory") {
+            Some(d) => d,
+            None => "",
+        };
+        tchdir(session, directory.to_string());
+        return;
     }
 }
 
@@ -103,58 +156,6 @@ fn edit_wait(mut session: Session, filename: String) {
                 println!("received stuff!");
             }
         }
-    }
-}
-
-fn main() {
-    env_logger::init();
-
-    // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
-    let matches = App::new("neovim-cmd")
-        .version("0.1.0")
-        .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
-        .about("Send commands to neovim from the :terminal")
-        .subcommand(
-            SubCommand::with_name("edit")
-                .arg_from_usage("<file> 'File to edit'")
-                .arg_from_usage("--wait 'Wait for buffer to be deleted'"),
-        )
-        .subcommand(
-            SubCommand::with_name("cd").arg_from_usage("[directory] 'Directory to :tchdir'"),
-        )
-        .get_matches();
-
-    // first, check if we are within neovim's terminal (if neovim is running)
-    let address = match env::vars().find(|&(ref key, ref _value)| key == "NVIM_LISTEN_ADDRESS") {
-        // option.0 is the key (env variable name) option.1 is the value (env variable value)
-        Some(option) => option.1,
-        None => {
-            error!("This only works from within a neovim terminal");
-            return;
-        }
-    };
-
-    // create a session and start it
-    debug!("listening address {}", address);
-
-    let session = Session::new_unix_socket(address).unwrap();
-
-    if let Some(matches) = matches.subcommand_matches("edit") {
-        let filename = matches.value_of("file").unwrap();
-        if matches.is_present("wait") {
-            edit_wait(session, filename.to_string());
-        } else {
-            edit(session, filename.to_string());
-        }
-        return;
-    }
-    if let Some(matches) = matches.subcommand_matches("cd") {
-        let directory = match matches.value_of("directory") {
-            Some(d) => d,
-            None => "",
-        };
-        tchdir(session, directory.to_string());
-        return;
     }
 }
 
