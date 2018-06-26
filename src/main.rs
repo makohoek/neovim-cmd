@@ -104,18 +104,20 @@ fn edit_wait(mut session: Session, filename: String) {
     }
 }
 
-
 fn main() {
     // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
     let matches = App::new("neovim-cmd")
         .version("0.1.0")
         .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
         .about("Send commands to neovim from the :terminal")
-        .subcommand(SubCommand::with_name("edit")
-                    .arg_from_usage("<file> 'File to edit'")
-                    .arg_from_usage("--wait 'Wait for buffer to be deleted'"))
-        .subcommand(SubCommand::with_name("cd")
-                    .arg_from_usage("[directory] 'Directory to :tchdir'"))
+        .subcommand(
+            SubCommand::with_name("edit")
+                .arg_from_usage("<file> 'File to edit'")
+                .arg_from_usage("--wait 'Wait for buffer to be deleted'"),
+        )
+        .subcommand(
+            SubCommand::with_name("cd").arg_from_usage("[directory] 'Directory to :tchdir'"),
+        )
         .get_matches();
 
     // first, check if we are within neovim's terminal (if neovim is running)
