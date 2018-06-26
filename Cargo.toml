@@ -1,5 +1,5 @@
 [package]
-name = "neovim-rsrc"
+name = "neovim-cmd"
 version = "0.1.0"
 authors = ["Mattijs Korpershoek <mattijs.korpershoek@gmail.com>"]
 

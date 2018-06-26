@@ -42,7 +42,7 @@ impl Handler for BufferEventHandler {
 fn main() {
     // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
     let matches = App::new("neovim-cmd")
-        .version("0.0.1")
+        .version("0.1.0")
         .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
         .about("Send commands to neovim from the :terminal")
         .arg_from_usage("<file> 'File to edit'")
@@ -87,7 +87,7 @@ fn main() {
     // we are now subscrided to events related to this buffer
     let attach_ok = curbuf.attach(&mut nvim, false, [].to_vec()).unwrap();
 
-    if !attach_ok {
+    if attach_ok {
         eprintln!("could not attach to buffer");
         return;
     }
