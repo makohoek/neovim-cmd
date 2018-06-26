@@ -41,10 +41,10 @@ impl Handler for BufferEventHandler {
 
 fn main() {
     // https://rust-lang-nursery.github.io/rust-cookbook/app.html#ex-clap-basic
-    let matches = App::new("Neovim Remote Control")
+    let matches = App::new("neovim-cmd")
         .version("0.0.1")
         .author("Mattijs Korpershoek <mattijs.korpershoek@gmail.com>")
-        .about("Control neovim from the :terminal")
+        .about("Send commands to neovim from the :terminal")
         .arg_from_usage("<file> 'File to edit'")
         .get_matches();
 
