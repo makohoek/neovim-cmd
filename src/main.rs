@@ -82,24 +82,26 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("edit") {
         let filename = matches.value_of("file").unwrap();
+        let filename = filename.to_string();
         if matches.is_present("wait") {
-            edit_wait(session, filename.to_string());
+            edit_wait(session, filename);
         } else {
-            edit(session, filename.to_string());
+            edit(session, filename);
         }
         return;
     }
     if let Some(matches) = matches.subcommand_matches("cd") {
         let directory = match matches.value_of("directory") {
-            Some(d) => d,
-            None => "",
+            Some(d) => d.to_string(),
+            None => String::from(""),
         };
-        tchdir(session, directory.to_string());
+        tchdir(session, directory);
         return;
     }
     if let Some(matches) = matches.subcommand_matches("rename") {
         let bufname = matches.value_of("name").unwrap();
-        term_rename(session, bufname.to_string());
+        let bufname = bufname.to_string();
+        term_rename(session, bufname);
         return;
     }
 }
