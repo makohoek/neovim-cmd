@@ -83,6 +83,12 @@ Installation
     cargo build --release
     ```
 
+5. Copy the binary to a folder in your `$PATH`:
+
+    ```sh
+    cp target/release/neovim-cmd ~/bin
+    ```
+
 
 References
 ----------
