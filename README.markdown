@@ -32,14 +32,12 @@ SUBCOMMANDS:
 Features
 --------
 
-Use it as your commit message editor:
-
+- Use it as your commit message editor:
     ```sh
     git config core.editor '~/bin/neovim-cmd edit --wait'
     ```
 
-Use it to synchronize `$PWD` with `:tchdir`:
-
+- Use it to synchronize `$PWD` with `:tchdir`:
     ```sh
     function cd() {
         builtin cd "$@";
@@ -50,8 +48,7 @@ Use it to synchronize `$PWD` with `:tchdir`:
     }
     export cd
     ```
-
-Inspired from [Yazgoo's blog post](http://yazgoo.github.io/blag/neovim/terminal/multiplexer/tmux/2017/11/29/neovim-one-week-without-tmux.html)
+    Inspired from [Yazgoo's blog post](http://yazgoo.github.io/blag/neovim/terminal/multiplexer/tmux/2017/11/29/neovim-one-week-without-tmux.html)
 
 
 Installation
