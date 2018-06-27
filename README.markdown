@@ -57,6 +57,10 @@ Inspired from [Yazgoo's blog post](http://yazgoo.github.io/blag/neovim/terminal/
 Installation
 ------------
 
+0. Install neovim 0.3.x. This is *not* compatible with neovim 0.3.x.
+   See [neovim instructions](https://github.com/neovim/neovim/#install-from-package)
+   for details.
+
 1. Install the rust toolchain with [`rustup.rs`](https://rustup.rs/)
 
     ```sh
