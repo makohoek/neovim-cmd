@@ -53,14 +53,18 @@ fn main() {
         .about("Send commands to neovim from the :terminal")
         .subcommand(
             SubCommand::with_name("edit")
+                .about("Edits file in existing neovim instance")
                 .arg_from_usage("<file> 'File to edit'")
                 .arg_from_usage("--wait 'Wait for buffer to be deleted'"),
         )
         .subcommand(
-            SubCommand::with_name("cd").arg_from_usage("[directory] 'Directory to :tchdir'"),
+            SubCommand::with_name("cd")
+                .about("Changes neovim's :pwd")
+                .arg_from_usage("[directory] 'Directory to :tchdir'"),
         )
         .subcommand(
             SubCommand::with_name("rename")
+                .about("Renames current :terminal")
                 .arg_from_usage("<name> 'Rename current :terminal to <name>'"),
         )
         .get_matches();
